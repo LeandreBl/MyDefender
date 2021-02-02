@@ -18,8 +18,19 @@ LIB	+= -llscene -llargs -llbl-libc
 
 STATIC_LIBS = lvector arguments-handler csfml-scene Custom-libc
 
-SRCS	= src/main.c
-SRCS	+= src/argument_handlers.c
+SRC_DIR = src/
+
+SOURCES = 	main.c 				\
+			argument_handlers.c	\
+			config_file.c		\
+			mob_config.c		\
+			mob.c				\
+			wave_config.c		\
+			mob_wave.c			\
+			utils.c				\
+			my_defender.c
+
+SRCS	= $(addprefix $(SRC_DIR), $(SOURCES))
 
 OBJ	= $(SRCS:.c=.o)
 
@@ -44,7 +55,7 @@ $(NAME): $(OBJ)
 	$(CC) $(OBJ) $(LIB) -o $(NAME)
 
 dependencies:
-	git submodule foreach make static
+	@git submodule foreach make static
 
 debug: CFLAGS += -g3
 debug: re
@@ -54,10 +65,11 @@ opti: re
 
 clean:
 	$(RM) $(OBJ)
+	@git submodule foreach make clean
 
 fclean: clean
 	$(RM) $(NAME)
-	git submodule foreach make fclean
+	@git submodule foreach make fclean
 
 re: fclean all
 

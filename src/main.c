@@ -1,6 +1,5 @@
-#include "settings.h"
 #include "arguments.h"
-#include "LSCENE/lscene.h"
+#include "my_defender.h"
 
 static const arg_handler(settings_t) HANDLERS[] = {
     {
@@ -26,26 +25,31 @@ static const arg_handler(settings_t) HANDLERS[] = {
         .help = "Set a custom window's name",
         .args_type_info = "STRING",
         .argument_needed = true,
-    }
+    },
+    {
+        .opt = "-c",
+        .optlong = "--config",
+        .handler = &config_setting_handler,
+        .help =
+            "Defender configuration file, including waves and mobs definitions",
+        .args_type_info = "FILEPATH",
+        .argument_needed = true,
+    },
 };
 
 int main(int ac, const char *av[])
 {
     opts_handler_t opts;
-    settings_t settings = {
-        .window_name = "MyDefender",
-        .fps = 30,
-    };
-    lscene_t scene;
+    defender_ctx_t ctx;
 
+    if (my_defender_ctx_init(&ctx) == -1)
+        return -1;
     opts_create(&opts, av[0], HANDLERS, sizeof(HANDLERS) / sizeof(*HANDLERS));
-    if (opts_get(&opts, ac, av, &settings) == -1) {
+    if (opts_get(&opts, ac, av, &ctx.settings) == -1) {
         return 1;
     }
-    if (lscene_create(&scene, settings.window_name, settings.fps) == -1) {
-        return -1;
-    }
-    lscene_run(&scene);
-    lscene_destroy(&scene);
+    if (my_defender_ctx_run(&ctx) == -1)
+        return 1;
+    my_defender_ctx_destroy(&ctx);
     return 0;
 }

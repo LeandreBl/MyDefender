@@ -1,0 +1,15 @@
+mobname: sbire
+health: 10
+speed: 1
+
+mobname: tank
+health: 30
+speed: 0.5
+
+wavename: easy
+- sbire: 10
+- tank: 2
+
+wavename: normal
+- sbire: 30
+- tank: 7

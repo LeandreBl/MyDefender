@@ -1,0 +1,12 @@
+[submodule "lvector"]
+	path = lvector
+	url = git@github.com:LeandreBl/lvector.git
+[submodule "csfml-scenes"]
+	path = csfml-scenes
+	url = git@github.com:LeandreBl/csfml-scenes.git
+[submodule "arguments-handler"]
+	path = arguments-handler
+	url = git@github.com:LeandreBl/arguments-handler.git
+[submodule "Custom-libc"]
+	path = Custom-libc
+	url = git@github.com:LeandreBl/Custom-libc.git

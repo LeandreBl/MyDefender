@@ -8,7 +8,8 @@ int fps_setting_handler(settings_t *settings, const char *av[])
     char *np;
     long v = strtol(av[1], &np, 10);
 
-    if (np == av[1] || v <= 0) {
+    if (np == av[1] || v <= 0)
+    {
         fprintf(stderr, "\"%s\" is not a valid framerate\n", av[1]);
         return -1;
     }
@@ -24,24 +25,58 @@ int window_name_setting_handler(settings_t *settings, const char *av[])
     return 0;
 }
 
-int config_setting_handler(settings_t *settings, const char *av[])
+int waves_setting_handler(settings_t *settings, const char *av[])
 {
     config_file_t file;
     wave_config_t cfg;
     size_t i = 0;
 
-    if (config_file_create(&file, av[1]) == -1) {
+    if (config_file_create(&file, av[1]) == -1)
+    {
         fprintf(stderr, "\"%s\" is not a valid file (%m)\n", av[1]);
         return -1;
     }
     lvector_create(settings->waves, 0, wave_config_destroy);
-    while (i < file.len) {
-        if (wave_config_create_from_file(&cfg, &file, &i) == -1) {
+    while (i < file.len)
+    {
+        if (wave_config_create_from_file(&cfg, &file, &i) == -1)
+        {
             config_file_destroy(&file);
             return -1;
         }
         lvector_push_back(settings->waves, cfg);
     }
     config_file_destroy(&file);
+    return 0;
+}
+
+int mobs_setting_handler(settings_t *settings, const char *av[])
+{
+    config_file_t file;
+    mob_config_t cfg;
+    size_t i = 0;
+
+    if (config_file_create(&file, av[1]) == -1)
+    {
+        fprintf(stderr, "\"%s\" is not a valid file (%m)\n", av[1]);
+        return -1;
+    }
+    lvector_create(settings->mobs, 0, mob_config_destroy);
+    while (i < file.len)
+    {
+        if (mob_config_create_from_file(&cfg, &file, &i) == -1) {
+            config_file_destroy(&file);
+            return -1;
+        }
+        lvector_push_back(settings->mobs, cfg);
+    }
+    config_file_destroy(&file);
+    return 0;
+}
+
+int verbose_setting_handler(settings_t *settings, const char *av[])
+{
+    (void)av;
+    settings->verbose = true;
     return 0;
 }

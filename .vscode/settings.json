@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "mob_config.h": "c",
+        "wave_config.h": "c",
+        "ltext_button.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "lvector.h": "c",
+        "lscene.h": "c",
+        "graphics.h": "c"
+    }
+}

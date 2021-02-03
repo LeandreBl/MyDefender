@@ -12,11 +12,11 @@ NAME	= my_defender
 
 CC	= gcc
 
-LIB	+= -lm
+LIB	:= -lm
 LIB	+= -lcsfml-graphics -lcsfml-system -lcsfml-network -lcsfml-audio -lcsfml-window
-LIB	+= -llscene -llargs -llbl-libc
+LIB	+= -llscene -llargs -llbl-libc -llgtab
 
-STATIC_LIBS = lvector arguments-handler csfml-scene Custom-libc
+STATIC_LIBS = lvector arguments-handler Custom-libc C-dynamic-arrays C-string
 
 SRC_DIR = src/
 
@@ -28,7 +28,8 @@ SOURCES = 	main.c 				\
 			wave_config.c		\
 			mob_wave.c			\
 			utils.c				\
-			my_defender.c
+			my_defender.c		\
+			settings.c
 
 SRCS	= $(addprefix $(SRC_DIR), $(SOURCES))
 
@@ -36,10 +37,11 @@ OBJ	= $(SRCS:.c=.o)
 
 RM	= rm -f
 
-CPPFLAGS	+= $(addprefix -I ./, $(STATIC_LIBS))
-
 CFLAGS	= -I ./include
+CFLAGS	+= $(addprefix -I ./, $(addsuffix /include, $(STATIC_LIBS)))
 CFLAGS	+= -Wextra -Wall -std=gnu11
+
+LDFLAGS += $(addprefix -L ./, $(STATIC_LIBS))
 
 GREEN		= '\033[0;32m'
 NO_COLOR	= '\033[0m'
@@ -52,7 +54,7 @@ NO_COLOR	= '\033[0m'
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) $(LIB) -o $(NAME)
+	$(CC) $(OBJ) $(LDFLAGS) $(LIB) -o $(NAME)
 
 dependencies:
 	@git submodule foreach make static
@@ -71,6 +73,6 @@ fclean: clean
 	$(RM) $(NAME)
 	@git submodule foreach make fclean
 
-re: fclean all
+re: fclean dependencies all
 
 .PHONY: all clean fclean re

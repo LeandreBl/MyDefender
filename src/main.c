@@ -27,13 +27,28 @@ static const arg_handler(settings_t) HANDLERS[] = {
         .argument_needed = true,
     },
     {
-        .opt = "-c",
-        .optlong = "--config",
-        .handler = &config_setting_handler,
-        .help =
-            "Defender configuration file, including waves and mobs definitions",
+        .opt = "-wc",
+        .optlong = "--waves-config",
+        .handler = &waves_setting_handler,
+        .help = "Defender waves configuration file",
         .args_type_info = "FILEPATH",
         .argument_needed = true,
+    },
+    {
+        .opt = "-mc",
+        .optlong = "--mobs-config",
+        .handler = &mobs_setting_handler,
+        .help = "Defender mobs configuration file",
+        .args_type_info = "FILEPATH",
+        .argument_needed = true,
+    },
+    {
+        .opt = "-v",
+        .optlong = "--verbose",
+        .handler = &verbose_setting_handler,
+        .help = "Turn on the verbose mode",
+        .args_type_info = NULL,
+        .argument_needed = false,
     },
 };
 
@@ -48,6 +63,8 @@ int main(int ac, const char *av[])
     if (opts_get(&opts, ac, av, &ctx.settings) == -1) {
         return 1;
     }
+    if (ctx.settings.verbose)
+        settings_print(&ctx.settings);
     if (my_defender_ctx_run(&ctx) == -1)
         return 1;
     my_defender_ctx_destroy(&ctx);

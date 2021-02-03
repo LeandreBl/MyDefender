@@ -10,3 +10,9 @@
 [submodule "Custom-libc"]
 	path = Custom-libc
 	url = git@github.com:LeandreBl/Custom-libc.git
+[submodule "C-dynamic-arrays"]
+	path = C-dynamic-arrays
+	url = git@github.com:LeandreBl/C-dynamic-arrays.git
+[submodule "C-string"]
+	path = C-string
+	url = git@github.com:LeandreBl/C-string.git

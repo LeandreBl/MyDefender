@@ -10,46 +10,41 @@
 
 NAME	= my_defender
 
-CC	= gcc
+CC	= g++
 
 LIB	:= -lm
-LIB	+= -lcsfml-graphics -lcsfml-system -lcsfml-network -lcsfml-audio -lcsfml-window
-LIB	+= -llscene -llargs -llbl-libc -llgtab
+LIB	+= -lsfml-graphics -lsfml-system -lsfml-network -lsfml-audio -lsfml-window
+LIB	+= -lsfml-scene-static -lminiparsearg
 
-STATIC_LIBS = lvector arguments-handler Custom-libc C-dynamic-arrays C-string
+STATIC_LIBS = MiniParseArg sfml-scene sfml-scene/build
 
 SRC_DIR = src/
 
-SOURCES = 	main.c 				\
-			argument_handlers.c	\
-			config_file.c		\
-			mob_config.c		\
-			mob.c				\
-			wave_config.c		\
-			mob_wave.c			\
-			utils.c				\
-			my_defender.c		\
-			settings.c
+SOURCES = 	main.cpp				\
+			DefenderSettings.cpp	\
+			Wave.cpp				\
+			FileParser.cpp			\
+			MobWave.cpp				\
 
-SRCS	= $(addprefix $(SRC_DIR), $(SOURCES))
+SRC	= $(addprefix $(SRC_DIR), $(SOURCES))
 
-OBJ	= $(SRCS:.c=.o)
+OBJ	= $(SRC:.cpp=.o)
 
 RM	= rm -f
 
-CFLAGS	= -I ./include
-CFLAGS	+= $(addprefix -I ./, $(addsuffix /include, $(STATIC_LIBS)))
-CFLAGS	+= -Wextra -Wall -std=gnu11
+CXXFLAGS	= -I ./include
+CXXFLAGS	+= $(addprefix -I ./, $(addsuffix /include, $(STATIC_LIBS)))
+CXXFLAGS	+= -Wextra -Wall -std=c++2a
 
 LDFLAGS += $(addprefix -L ./, $(STATIC_LIBS))
 
 GREEN		= '\033[0;32m'
 NO_COLOR	= '\033[0m'
 
-%.o : %.c
-	@$ $(CC) $(CFLAGS) -c $< -o $@
-	@echo "$(CC) $(CFLAGS) -c $< -o $@ ["$(GREEN)"OK"$(NO_COLOR)"]"
-.SUFFIXES: .o .c
+%.o : %.cpp
+	@$ $(CC) $(CXXFLAGS) -c $< -o $@
+	@echo "$(CC) $(CXXFLAGS) -c $< -o $@ ["$(GREEN)"OK"$(NO_COLOR)"]"
+.SUFFIXES: .o .cpp
 
 all: $(NAME)
 
@@ -57,7 +52,7 @@ $(NAME): $(OBJ)
 	$(CC) $(OBJ) $(LDFLAGS) $(LIB) -o $(NAME)
 
 dependencies:
-	@git submodule foreach make static
+	$(MAKE) -C MiniParseArg static
 
 debug: CFLAGS += -g3
 debug: re
@@ -67,11 +62,11 @@ opti: re
 
 clean:
 	$(RM) $(OBJ)
-	@git submodule foreach make clean
+	$(MAKE) -C MiniParseArg clean
 
 fclean: clean
 	$(RM) $(NAME)
-	@git submodule foreach make fclean
+	$(MAKE) -C MiniParseArg fclean
 
 re: fclean dependencies all
 

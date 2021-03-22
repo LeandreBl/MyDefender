@@ -21,6 +21,9 @@ namespace Defender
         const std::vector<MobConfig> &getMobs() const noexcept;
         int parse(int ac, const char **av) noexcept;
         int loadMobs(const std::string &filepath) noexcept;
+        bool addMob(const std::string &name) noexcept;
+        bool setMobHealth(float health) noexcept;
+        bool setMobSpeed(float speed) noexcept;
         int loadWaves(const std::string &filepath) noexcept;
         bool addWave(const std::string &name) noexcept;
         bool setDifficulty(size_t difficulty) noexcept;

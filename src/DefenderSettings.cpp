@@ -80,6 +80,37 @@ namespace Defender
         return true;
     }
 
+    bool Settings::addMob(const std::string &name) noexcept
+    {
+        try {
+            _mobs.emplace_back(name);
+            return true;
+        } catch (const std::exception &e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            return false;
+        }
+    }
+
+    bool Settings::setMobHealth(float health) noexcept
+    {
+        if (_waves.size() == 0) {
+            std::cerr << "Error: health set without a previous mob-id." << std::endl;
+            return false;
+        }
+        _mobs.back().health(health);
+        return true;
+    }
+
+    bool Settings::setMobSpeed(float speed) noexcept
+    {
+        if (_waves.size() == 0) {
+            std::cerr << "Error: speed set without a previous mob-id." << std::endl;
+            return false;
+        }
+        _mobs.back().speed(speed);
+        return true;
+    }
+
     int Settings::parse(int ac, const char **av) noexcept
     {
         static const MiniParseArg::MiniParseOption OPTIONS[] = {
@@ -128,7 +159,12 @@ namespace Defender
                 .opt = "-mc",
                 .optlong = "--mobs-config",
                 .callback = [&](int, const char **av) -> bool {
-                    return false;
+                    int res = loadMobs(av[1]);
+                    if (res < 0) {
+                        std::cerr << "Error: Invalid file: " << av[1] << std::endl;
+                        return false;
+                    }
+                    return res == 0;
                 },
                 .help = "Defender mobs configuration file.",
                 .argType = "FILEPATH",
@@ -152,21 +188,39 @@ namespace Defender
     {
         static const FileParser::ParserEntry BINDS[] = {
             {
-                .pattern = "mobname ",
-                .callback = [&](size_t lineno, const std::string &s, std::istringstream &ss) -> bool {
-                    return false;
+                .pattern = "mob-id ",
+                .callback = [&](size_t lineno, const std::string &, std::istringstream &ss) -> bool {
+                    std::string name;
+
+                    if (!(ss >> name) || name.length() == 0) {
+                        std::cerr << "Error: line " << RED << lineno << RESET << ": " << "invalid mob id." << std::endl;
+                        return false;
+                    }
+                    return addMob(name);
                 },
             },
             {
                 .pattern = "health ",
-                .callback = [&](size_t lineno, const std::string &s, std::istringstream &ss) -> bool {
-                    return false;
+                .callback = [&](size_t lineno, const std::string &, std::istringstream &ss) -> bool {
+                    float health;
+
+                    if (!(ss >> health) || health <= 0.f) {
+                        std::cerr << "Error: line " << RED << lineno << RESET << ": " << "invalid health count." << std::endl;
+                        return false;
+                    }
+                    return setMobHealth(health);
                 }
             },
             {
                 .pattern = "speed ",
-                .callback = [&](size_t lineno, const std::string &s, std::istringstream &ss) -> bool {
-                    return false;
+                .callback = [&](size_t lineno, const std::string &, std::istringstream &ss) -> bool {
+                    float speed;
+
+                    if (!(ss >> speed) || speed <= 0.f) {
+                        std::cerr << "Error: line " << RED << lineno << RESET << ": " << "invalid speed value." << std::endl;
+                        return false;
+                    }
+                    return setMobSpeed(speed);
                 }
             },
         };
@@ -179,7 +233,7 @@ namespace Defender
         static const FileParser::ParserEntry BINDS[] = {
             {
                 .pattern = "wavename ",
-                .callback = [&](size_t lineno, const std::string &s, std::istringstream &ss) -> bool {
+                .callback = [&](size_t lineno, const std::string &, std::istringstream &ss) -> bool {
                     std::string name;
 
                     if (!(ss >> name) || name.length() == 0) {
@@ -191,7 +245,7 @@ namespace Defender
             },
             {
                 .pattern = "difficulty ",
-                .callback = [&](size_t lineno, const std::string &s, std::istringstream &ss) -> bool {
+                .callback = [&](size_t lineno, const std::string &, std::istringstream &ss) -> bool {
                     size_t difficulty;
 
                     if (!(ss >> difficulty)) {
@@ -203,7 +257,7 @@ namespace Defender
             },
             {
                 .pattern = "-",
-                .callback = [&](size_t lineno, const std::string &s, std::istringstream &ss) -> bool {
+                .callback = [&](size_t lineno, const std::string &, std::istringstream &ss) -> bool {
                     std::string mobId;
                     size_t count;
 
@@ -236,18 +290,27 @@ namespace Defender
         os << std::endl << '{' << std::endl
            << "  fps: " << s.fps() << ',' << std::endl
            << "  verbose: " << (s.verbose() ? "true," : "false,") << std::endl
-           << "  window: " << s.windowName() << std::endl;
+           << "  window: '" << s.windowName() << '\'' << std::endl
+           << "  waves: [" << s.getWaves().size() << ']' << std::endl;
         for (auto &&i : s.getWaves()) {
             os << "  {" << std::endl
-                << "    name: " << i.getName() << ',' << std::endl
+                << "    name: '" << i.getName() << "'," << std::endl
                 << "    difficulty: " << i.getDifficulty() << ',' << std::endl;
             for (auto &&mobs : i.getMobs()) {
                 os << "    {" << std::endl
-                    << "      id: " << mobs.getId() << ',' << std::endl
+                    << "      id: '" << mobs.getId() << "'," << std::endl
                     << "      count: " << mobs.getCount() << ',' << std::endl
                     << "    }," << std::endl;
             }
             os << "  }," << std::endl;
+        }
+        os << "  mobs: [" << s.getMobs().size() << ']' << std::endl;
+        for (auto &&i : s.getMobs()) {
+            os << "  {" << std::endl
+                << "    name: '" << i.name() << "'," << std::endl
+                << "    health: " << i.health() << ',' << std::endl
+                << "    speed: " << i.speed() << std::endl
+                << "  }," << std::endl;
         }
         os << "}" << std::endl;
         return os;

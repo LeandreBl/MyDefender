@@ -25,6 +25,7 @@ SOURCES = 	main.cpp				\
 			Wave.cpp				\
 			FileParser.cpp			\
 			MobWave.cpp				\
+			Mob.cpp					\
 
 SRC	= $(addprefix $(SRC_DIR), $(SOURCES))
 
